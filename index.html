@@ -1,378 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crypto Portfolio UI + Withdraw Flow</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Binance UI</title>
 <style>
-  body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-    background-color: #0e0f11;
-    color: white;
-  }
-
-  .container {
-    padding: 20px;
-    max-width: 600px;
-    margin: auto;
-  }
-
-  .value-section h1 {
-    font-size: 40px;
-    font-weight: 700;
-  }
-
-  .add-funds, .withdraw-btn {
-    background-color: #f5c32c;
-    padding: 10px 22px;
-    border-radius: 20px;
-    font-weight: 700;
-    color: black;
-    display: inline-block;
-    margin-right: 10px;
-    margin-top: 10px;
-    cursor: pointer;
-    text-align: center;
-  }
-
-  .withdraw-btn {
-    background-color: #1ecb6c;
-  }
-
-  .watchlist-title {
-    margin-top: 35px;
-    font-size: 22px;
-    font-weight: 600;
-    opacity: 0.9;
-  }
-
-  .coin-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 14px 0;
-    border-bottom: 1px solid #1a1b1e;
-  }
-
-  .coin-info {
-    display: flex;
-    align-items: center;
-  }
-
-  .coin-info img {
-    width: 32px;
-    margin-right: 12px;
-  }
-
-  .coin-symbol {
-    opacity: 0.6;
-    font-size: 13px;
-  }
-
-  .red { color: #f04444; font-weight: 600; }
-  .green { color: #30d158; font-weight: 600; }
-
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    height: 70px;
-    background-color: #0e0f11;
-    border-top: 1px solid #1c1d20;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-  }
-
-  /* --- Modal System --- */
-  .modal-background {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    display: none;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .modal {
-    background-color: #1b1c1f;
-    padding: 25px;
-    width: 90%;
-    max-width: 420px;
-    border-radius: 12px;
-    text-align: center;
-  }
-
-  input {
-    width: 95%;
-    padding: 12px;
-    margin-top: 15px;
-    background-color: #2a2b2e;
-    border: none;
-    color: white;
-    border-radius: 8px;
-    font-size: 16px;
-  }
-
-  .continue-btn, .withdraw-now {
-    margin-top: 20px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: none;
-    font-size: 17px;
-    font-weight: 700;
-    cursor: pointer;
-  }
-
-  .continue-btn { background: #f5c32c; color: black; }
-  .withdraw-now { background: #1ecb6c; color: black; }
-
-  .error-message {
-    margin-top: 15px;
-    color: #f04444;
-    font-weight: 600;
-  }
-
-  /* Sophisticated Binance-style Notification */
-  .deposit-notif {
-    position: fixed;
-    top: -120px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #f5c32c;
-    color: black;
-    padding: 18px 22px;
-    border-radius: 14px;
-    font-weight: 700;
-    z-index: 9999;
-    width: 90%;
-    max-width: 450px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-    transition: top 0.4s ease;
-    text-align: center;
-    border-left: 6px solid black;
-  }
-
-  .deposit-notif.show {
-    top: 20px;
-  }
+    body {
+        background-color: #0b0e11;
+        color: white;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        padding: 20px;
+    }
+    .balance-box {
+        background-color: #15181d;
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+    }
+    .balance-title {
+        color: #9b9b9b;
+        font-size: 14px;
+    }
+    .balance-amount {
+        font-size: 32px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+    .add-funds-btn {
+        background-color: #f0b90b;
+        border: none;
+        padding: 12px 18px;
+        color: #000;
+        font-weight: bold;
+        border-radius: 8px;
+        margin-top: 12px;
+        cursor: pointer;
+    }
+    .notification {
+        display: none;
+        background-color: #102915;
+        border-left: 4px solid #0f0;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        color: #d5ffd5;
+    }
+    .watchlist {
+        margin-top: 25px;
+    }
+    .coin {
+        background-color: #15181d;
+        padding: 14px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+    }
+    .coin-name {
+        font-size: 15px;
+        color: #cccccc;
+    }
+    .coin-price {
+        font-size: 17px;
+        margin-top: 4px;
+    }
+    .fee {
+        margin-top: 10px;
+        color: #bbbbbb;
+    }
+    .fee-amount {
+        color: #f0b90b;
+        font-weight: bold;
+    }
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
-  <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" width="48">
+    <div class="balance-box">
+        <p class="balance-title">Total Balance</p>
+        <p class="balance-amount" id="balance">$16,353.76</p>
 
-  <div class="value-section">
-    <div style="opacity:0.7; margin-top:10px;">Est. Total Value 👁</div>
-    <h1 id="balanceAmount">$16,230.90</h1>
-  </div>
+        <button class="add-funds-btn" onclick="showNotification()">Add Funds</button>
 
-  <!-- Add Funds Button -->
-  <div class="add-funds" onclick="handleDeposit()">Add Funds</div>
-  <div class="withdraw-btn" onclick="openWalletModal()">Withdraw</div>
-
-  <div class="watchlist-title">Watchlist • Coin</div>
-
-  <!-- SAME COIN LIST (unchanged) -->
-  <!-- LIST REMAINS EXACTLY THE SAME -->
-  
-  <div class="coin-row">
-    <div class="coin-info">
-      <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png">
-      <div>
-        <div>BNB</div>
-        <div class="coin-symbol">BNB</div>
-      </div>
+        <p class="fee">Gas Fee: <span class="fee-amount">105.67 USDT</span></p>
     </div>
-    <div style="text-align:right;">
-      <div class="red">-2.87%</div>
-      <div>$904.17 USDT</div>
-    </div>
-  </div>
 
-  <div class="coin-row">
-    <div class="coin-info">
-      <img src="https://cryptologos.cc/logos/bitcoin-btc-logo.png">
-      <div>
-        <div>Bitcoin</div>
-        <div class="coin-symbol">BTC</div>
-      </div>
+    <div class="notification" id="notifyBox">
+        <p>Your deposit of 39.29 USDT was successful.</p>
+        <p>New balance has been updated.</p>
     </div>
-    <div style="text-align:right;">
-      <div class="red">-1.58%</div>
-      <div>$93,938.65 USDT</div>
-    </div>
-  </div>
 
-  <div class="coin-row">
-    <div class="coin-info">
-      <img src="https://cryptologos.cc/logos/ethereum-eth-logo.png">
-      <div>
-        <div>Ethereum</div>
-        <div class="coin-symbol">ETH</div>
-      </div>
-    </div>
-    <div style="text-align:right;">
-      <div class="red">-1.34%</div>
-      <div>$3,113.22 USDT</div>
-    </div>
-  </div>
+    <div class="watchlist">
+        <h3>Watchlist</h3>
 
-  <div class="coin-row">
-    <div class="coin-info">
-      <img src="https://cryptologos.cc/logos/solana-sol-logo.png">
-      <div>
-        <div>Solana</div>
-        <div class="coin-symbol">SOL</div>
-      </div>
-    </div>
-    <div style="text-align:right;">
-      <div class="red">-1.87%</div>
-      <div>$137.21 USDT</div>
-    </div>
-  </div>
+        <div class="coin">
+            <p class="coin-name">DOGE / USDT</p>
+            <p class="coin-price">0.1283</p>
+        </div>
+        <div class="coin">
+            <p class="coin-name">SHIB / USDT</p>
+            <p class="coin-price">0.00000921</p>
+        </div>
+        <div class="coin">
+            <p class="coin-name">PEPE / USDT</p>
+            <p class="coin-price">0.00000134</p>
+        </div>
+        <div class="coin">
+            <p class="coin-name">FLOKI / USDT</p>
+            <p class="coin-price">0.0000311</p>
+        </div>
 
-  <div class="coin-row">
-    <div class="coin-info">
-      <img src="https://cryptologos.cc/logos/horizen-zen-logo.png">
-      <div>
-        <div>Horizen</div>
-        <div class="coin-symbol">ZEN</div>
-      </div>
     </div>
-    <div style="text-align:right;">
-      <div class="green">+10.55%</div>
-      <div>$15.54 USDT</div>
-    </div>
-  </div>
-
-  <div class="coin-row">
-    <div class="coin-info">
-      <img src="https://cryptologos.cc/logos/astar-astr-logo.png">
-      <div>
-        <div>Aster</div>
-        <div class="coin-symbol">ASTER</div>
-      </div>
-    </div>
-    <div style="text-align:right;">
-      <div class="green">+0.74%</div>
-      <div>$1.22 USDT</div>
-    </div>
-  </div>
-
-  <div class="coin-row">
-    <div class="coin-info">
-      <img src="https://cryptologos.cc/logos/zcash-zec-logo.png">
-      <div>
-        <div>Zcash</div>
-        <div class="coin-symbol">ZEC</div>
-      </div>
-    </div>
-    <div style="text-align:right;">
-      <div class="red">-7.37%</div>
-      <div>$656.11 USDT</div>
-    </div>
-  </div>
-
-  <div class="coin-row">
-    <div class="coin-info">
-      <img src="https://em-content.zobj.net/source/apple/354/banana_1f34c.png">
-      <div>
-        <div>Banana For Scale</div>
-        <div class="coin-symbol">BANANAS31</div>
-      </div>
-    </div>
-    <div style="text-align:right;">
-      <div class="green">+122.32%</div>
-      <div>$0.005129 USDT</div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Bottom Navigation -->
-<div class="bottom-nav">
-  <div>Markets</div>
-  <div>Square</div>
-  <div style="font-weight:700;">Trade</div>
-  <div>Discover</div>
-  <div>Portfolio</div>
-</div>
-
-<!-- WALLET INPUT MODAL -->
-<div class="modal-background" id="walletModal">
-  <div class="modal">
-    <h2>Insert Wallet Address</h2>
-    <input id="walletInput" placeholder="Enter USDT TRC20 Wallet">
-    <button class="continue-btn" onclick="goToGasFeePage()">Continue</button>
-  </div>
-</div>
-
-<!-- GAS FEE + FAIL MODAL -->
-<div class="modal-background" id="gasModal">
-  <div class="modal">
-    <h2>USDT TRC20 Transfer</h2>
-    <p>Amount: <strong>$15,678.90</strong></p>
-    <p>Network Fee Required: <strong>$512</strong></p>
-    <p>Status: <strong>Transferring…</strong></p>
-
-    <button class="withdraw-now" onclick="failTransaction()">Withdraw Now</button>
-    <div id="errorMsg" class="error-message"></div>
-  </div>
-</div>
-
-<!-- NEW SOPHISTICATED NOTIFICATION -->
-<div id="depositNotification" class="deposit-notif">
-  Deposit Successful • 122.86 USDT has been credited to your wallet.
 </div>
 
 <script>
-function handleDeposit() {
-  showDepositNotification();
-  updateBalance();
-}
-
-function showDepositNotification() {
-  const notif = document.getElementById("depositNotification");
-  notif.classList.add("show");
-
-  setTimeout(() => {
-    notif.classList.remove("show");
-  }, 5000);
-}
-
-function updateBalance() {
-  const balanceEl = document.getElementById("balanceAmount");
-
-  let raw = balanceEl.innerText.replace("$", "").replace(",", "");
-  let oldBalance = parseFloat(raw);
-
-  let newBalance = oldBalance + 122.86;
-
-  balanceEl.innerText = "$" + newBalance.toLocaleString(undefined, {minimumFractionDigits: 2});
-}
-
-function openWalletModal() {
-  document.getElementById("walletModal").style.display = "flex";
-}
-
-function goToGasFeePage() {
-  const wallet = document.getElementById("walletInput").value.trim();
-  if(wallet.length < 5) return alert("Enter a valid wallet address");
-
-  document.getElementById("walletModal").style.display = "none";
-  document.getElementById("gasModal").style.display = "flex";
-}
-
-function failTransaction() {
-  document.getElementById("errorMsg").innerHTML =
-    "Transaction failed: Not enough gas fees for TRC20 transfer.";
+function showNotification() {
+    document.getElementById("notifyBox").style.display = "block";
 }
 </script>
 
