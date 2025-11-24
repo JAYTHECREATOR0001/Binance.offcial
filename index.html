@@ -1,322 +1,732 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Binance-style Crypto UI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Wallet - Full Stack Refactor</title>
 
-<style>
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto;
-  background-color: #0e0f11;
-  color: white;
-}
+    <style>
+        /* CSS Variables for better maintenance */
+        :root {
+            --color-primary: #f5c32c; /* Binance Yellow */
+            --color-success: #1ecb6c; /* Binance Green */
+            --color-danger: #f04444; /* Red */
+            --color-background-dark: #0e0f11;
+            --color-card-dark: #1b1c1f;
+            --color-text-light: #ffffff;
+            --color-text-faded: #a0a0a0;
+            --color-separator: #1a1b1e;
+            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --padding-h: 20px;
+        }
 
-.container {
-  padding: 20px;
-  max-width: 600px;
-  margin: auto;
-}
+        body {
+            margin: 0;
+            font-family: var(--font-family);
+            background-color: var(--color-background-dark);
+            color: var(--color-text-light);
+        }
 
-.value-section h1 {
-  font-size: 40px;
-  font-weight: 700;
-}
+        .container {
+            padding: var(--padding-h);
+            max-width: 600px;
+            margin: auto;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
 
-.add-funds, .withdraw-btn {
-  padding: 10px 22px;
-  border-radius: 20px;
-  font-weight: 700;
-  display: inline-block;
-  margin: 10px 5px 0 0;
-  cursor: pointer;
-  text-align: center;
-}
+        /* --- Global Components --- */
+        .btn {
+            padding: 10px 22px;
+            border-radius: 6px; /* Slightly squarer for professional look */
+            font-weight: 700;
+            display: inline-block;
+            margin: 10px 5px 0 0;
+            cursor: pointer;
+            text-align: center;
+            transition: opacity 0.2s;
+            border: none;
+        }
+        .btn:hover { opacity: 0.85; }
+        .btn-primary { background-color: var(--color-primary); color: black; }
+        .btn-success { background-color: var(--color-success); color: black; }
+        .btn-danger { background-color: var(--color-danger); color: white; }
 
-.add-funds { background-color: #f5c32c; color: black; }
-.withdraw-btn { background-color: #1ecb6c; color: black; }
+        /* --- Home Section --- */
+        .logo-header {
+            display: block;
+            margin: 0 auto 20px auto;
+        }
 
-.watchlist-title {
-  margin-top: 35px;
-  font-size: 22px;
-  font-weight: 600;
-  opacity: 0.9;
-}
+        .value-section h1 {
+            font-size: 40px;
+            font-weight: 700;
+        }
+        .value-section p {
+            opacity: 0.7;
+            margin-top: 10px;
+            font-size: 14px;
+        }
 
-.coin-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 14px 0;
-  border-bottom: 1px solid #1a1b1e;
-  align-items: center;
-  transition: background-color 0.3s ease;
-}
+        .action-btns {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 15px 0 0 -5px;
+        }
 
-.coin-row:hover { background-color: #1c1d21; cursor: pointer; }
+        .watchlist-title {
+            margin-top: 35px;
+            font-size: 22px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
 
-.coin-info { display: flex; align-items: center; }
+        .coin-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--color-separator);
+            align-items: center;
+            transition: background-color 0.1s ease;
+        }
 
-.coin-info img {
-  width: 32px;
-  margin-right: 12px;
-}
+        .coin-row:hover { background-color: #1c1d21; cursor: pointer; }
 
-.coin-symbol { opacity: 0.6; font-size: 13px; }
-.red { color: #f04444; font-weight: 600; }
-.green { color: #30d158; font-weight: 600; }
+        .coin-info { display: flex; align-items: center; }
 
-/* Modal */
-.modal-background {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
+        .coin-info img {
+            width: 32px;
+            margin-right: 12px;
+            border-radius: 50%;
+        }
 
-.modal {
-  background-color: #1b1c1f;
-  padding: 25px;
-  width: 90%;
-  max-width: 420px;
-  border-radius: 12px;
-  text-align: center;
-}
+        .coin-symbol { opacity: 0.6; font-size: 13px; }
+        .coin-change.red { color: var(--color-danger); font-weight: 600; }
+        .coin-change.green { color: var(--color-success); font-weight: 600; }
 
-input {
-  width: 95%;
-  padding: 12px;
-  margin-top: 15px;
-  background-color: #2a2b2e;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  font-size: 16px;
-}
+        /* --- Modal Base --- */
+        .modal-background {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        .modal-background.active { display: flex; }
 
-.send-btn {
-  margin-top: 20px;
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  font-size: 17px;
-  font-weight: 700;
-  cursor: pointer;
-  background: #1ecb6c;
-  color: black;
-}
+        .modal {
+            background-color: var(--color-card-dark);
+            padding: 25px;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .modal-title { font-size: 20px; margin-bottom: 20px; font-weight: 600; }
 
-.spinner {
-  width: 26px;
-  height: 26px;
-  border: 4px solid #ffffff30;
-  border-top-color: #fff;
-  border-radius: 50%;
-  margin: 15px auto;
-  animation: spin 1s linear infinite;
-}
+        /* --- Form Elements --- */
+        .input-group {
+            margin-top: 15px;
+            position: relative;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            background-color: #2a2b2e;
+            border: none;
+            color: var(--color-text-light);
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .input-addon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-faded);
+            font-weight: 600;
+        }
+        .input-addon.max-btn {
+            color: var(--color-primary);
+            cursor: pointer;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+        
+        /* --- Convert Modal Styles --- */
+        .convert-select {
+            background-color: #2a2b2e;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .convert-select:hover { opacity: 0.9; }
+        .convert-select img { width: 24px; margin-right: 10px; }
+        .convert-select-info { display: flex; align-items: center; }
+        .convert-select-label { color: var(--color-text-faded); font-size: 12px; text-align: left; }
+        .convert-select-value { font-size: 16px; font-weight: 600; }
+        .exchange-icon {
+            font-size: 20px;
+            color: var(--color-text-faded);
+            margin: 15px auto;
+            display: block;
+        }
+        
+        /* --- Review Modal Styles --- */
+        .review-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 15px;
+            border-bottom: 1px solid var(--color-separator);
+        }
+        .review-row:last-of-type { border-bottom: none; }
+        .review-label { color: var(--color-text-faded); }
+        .review-value.fee { color: var(--color-danger); }
+        .review-value { font-weight: 600; }
 
-@keyframes spin { 100% { transform: rotate(360deg); } }
+        /* --- Utility Classes (Replaced old classes) --- */
+        .spinner {
+            width: 26px;
+            height: 26px;
+            border: 4px solid #ffffff30;
+            border-top-color: var(--color-text-light);
+            border-radius: 50%;
+            margin: 15px auto;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-/* Toast */
-.binance-toast {
-  position: fixed;
-  bottom: -150px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1c1c1c;
-  border-left: 6px solid #f5c32c;
-  padding: 16px 20px;
-  border-radius: 12px;
-  color: white;
-  min-width: 300px;
-  max-width: 90%;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  opacity: 0;
-  transition: all 0.5s ease;
-  z-index: 3000;
-}
+        /* --- Toast --- */
+        .binance-toast {
+            position: fixed;
+            bottom: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-card-dark);
+            border-left: 6px solid var(--color-primary);
+            padding: 16px 20px;
+            border-radius: 12px;
+            color: var(--color-text-light);
+            min-width: 300px;
+            max-width: 90%;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transition: all 0.5s ease;
+            z-index: 3000;
+        }
+        .binance-toast.show { animation: slideToast 4.5s ease forwards; }
 
-.binance-toast.show { animation: slideToast 4.5s ease forwards; }
+        @keyframes slideToast {
+            0% { bottom: -150px; opacity: 0; }
+            10% { bottom: 40px; opacity: 1; }
+            90% { bottom: 40px; opacity: 1; }
+            100% { bottom: -150px; opacity: 0; }
+        }
 
-@keyframes slideToast {
-  0% { bottom: -150px; opacity: 0; }
-  10% { bottom: 40px; opacity: 1; }
-  90% { bottom: 40px; opacity: 1; }
-  100% { bottom: -150px; opacity: 0; }
-}
-
-.toast-icon {
-  width: 32px;
-  height: 32px;
-  background: #f5c32c;
-  color: black;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-}
-
-</style>
+        .toast-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--color-primary);
+            color: black;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 18px;
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="container">
 
-  <!-- Logo -->
-  <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" 
-       width="90" 
-       style="display:block;margin:0 auto 20px auto;">
+    <img src="https://cryptologos.cc/logos/binance-coin-bnb-logo.png" 
+         width="90" 
+         class="logo-header">
 
-  <div class="value-section">
-    <div style="opacity:0.7; margin-top:10px;">Est. Total Value 👁</div>
-    <h1 id="balanceAmount">$16,599.48</h1>
-  </div>
+    <div class="value-section">
+        <p>Est. Total Value 👁</p>
+        <h1 id="balanceAmount">$16,599.48</h1>
+        <p id="usdtBalance" style="opacity: 0.5; font-size: 12px; margin-top: 0;">USDT Available: 0.00</p>
+    </div>
 
-  <div class="add-funds" onclick="handleDeposit()">Add Funds</div>
-  <div class="withdraw-btn" onclick="openWithdraw()">Withdraw</div>
+    <div class="action-btns">
+        <div class="btn btn-primary" onclick="handleDeposit()">Deposit</div>
+        <div class="btn btn-success" onclick="openModal('withdrawModal')">Withdraw</div>
+        <div class="btn btn-success" onclick="openModal('convertModal')">Convert</div>
+    </div>
 
-  <div class="watchlist-title">Watchlist • Coin</div>
-  <div id="watchlistContainer"></div>
+    <div class="watchlist-title">Watchlist • Coin</div>
+    <div id="watchlistContainer"></div>
 </div>
 
-<!-- Withdraw Modal -->
-<div class="modal-background" id="withdrawModal">
-  <div class="modal">
-    <h2>Enter TRC20 Wallet</h2>
-    <input id="walletInput" placeholder="Wallet Address">
-    <button class="send-btn" onclick="startTransfer()">Send</button>
-  </div>
+<div class="modal-background" id="withdrawModal" onclick="closeModal('withdrawModal')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2 class="modal-title">Withdraw USDT</h2>
+        <input id="walletInput" placeholder="Wallet Address (TRC20)">
+        <button class="btn btn-success" style="width:100%; margin-top: 20px;" onclick="startTransfer()">Send</button>
+    </div>
 </div>
 
-<!-- Transfer Modal -->
+<div class="modal-background" id="convertModal" onclick="closeModal('convertModal')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2 class="modal-title">Convert Crypto</h2>
+        
+        <div class="convert-section">
+            <div class="convert-select-label">From:</div>
+            <div class="convert-select">
+                <div class="convert-select-info">
+                    <img src="https://cryptologos.cc/logos/tether-usdt-logo.png" alt="USDT">
+                    <div class="convert-select-value">USDT</div>
+                </div>
+                <div class="convert-select-value">Balance: <span id="convertUSDTBalance">0.00</span></div>
+            </div>
+            <div class="input-group">
+                <input id="usdtAmountInput" type="number" min="0" placeholder="Enter amount to convert" oninput="calculateConversion()">
+                <div class="input-addon max-btn" onclick="setMaxAmount()">MAX</div>
+            </div>
+        </div>
+
+        <i class="fas fa-exchange-alt exchange-icon"></i>
+
+        <div class="convert-section">
+            <div class="convert-select-label">To:</div>
+            <div id="toCoinSelect" class="convert-select" onclick="openCoinPicker()">
+                <div class="convert-select-info">
+                    <img id="toCoinLogo" src="https://cryptologos.cc/logos/bitcoin-btc-logo.png" alt="BTC">
+                    <div id="toCoinSymbol" class="convert-select-value">BTC</div>
+                </div>
+                <i class="fas fa-caret-down"></i>
+            </div>
+            <div class="input-group">
+                <input id="toCoinAmountInput" type="number" disabled placeholder="Converted amount">
+                <div id="toCoinAmountSymbol" class="input-addon">BTC</div>
+            </div>
+        </div>
+        
+        <button id="convertBtn" class="btn btn-primary" style="width:100%; margin-top: 25px;" onclick="openReviewModal()" disabled>Convert</button>
+    </div>
+</div>
+
+<div class="modal-background" id="coinPickerModal" onclick="closeModal('coinPickerModal')">
+    <div class="modal" onclick="event.stopPropagation()" style="max-height: 80%; overflow-y: auto;">
+        <h2 class="modal-title">Select Coin to Convert To</h2>
+        <div id="coinListContainer"></div>
+    </div>
+</div>
+
+<div class="modal-background" id="reviewModal" onclick="closeModal('reviewModal')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2 class="modal-title">Review Conversion</h2>
+
+        <div class="review-row">
+            <span class="review-label">Converting:</span>
+            <span id="reviewFrom" class="review-value">0.00 USDT</span>
+        </div>
+        <div class="review-row">
+            <span class="review-label">Receiving:</span>
+            <span id="reviewTo" class="review-value">0.00 BTC</span>
+        </div>
+        <div class="review-row">
+            <span class="review-label">External Fee:</span>
+            <span id="reviewFee" class="review-value fee" style="color: var(--color-danger);">-80.00 ETH</span>
+        </div>
+        <div class="review-row" style="border-bottom: none;">
+            <span class="review-label">Rate:</span>
+            <span id="reviewRate" class="review-value">1 BTC = 30,000 USDT</span>
+        </div>
+        
+        <button class="btn btn-success" style="width:100%; margin-top: 25px;" onclick="finalizeConvert()">Confirm Conversion</button>
+    </div>
+</div>
+
 <div class="modal-background" id="transferModal">
-  <div class="modal">
-    <h2>Transferring…</h2>
-    <div class="spinner"></div>
-    <p id="transferStatus">Processing Transaction…</p>
-  </div>
+    <div class="modal">
+        <h2>Converting...</h2>
+        <div class="spinner"></div>
+        <p id="transferStatus">Checking required external fees...</p>
+    </div>
 </div>
 
-<!-- Toast -->
+<div class="modal-background" id="alertModal" onclick="closeModal('alertModal')">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h2 class="modal-title" id="alertTitle">Conversion Failed</h2>
+        <p id="alertMessage" style="color:var(--color-text-faded); margin-bottom: 25px;">
+            The transaction could not be processed.
+        </p>
+        <button class="btn btn-danger" style="width:100%;" onclick="closeModal('alertModal')">OK</button>
+    </div>
+</div>
+
 <div id="binanceToast" class="binance-toast">
-  <div class="toast-icon">₮</div>
-  <div class="toast-text" id="toastText">Deposit Completed</div>
+    <div class="toast-icon">₮</div>
+    <div class="toast-text" id="toastText">Deposit Completed</div>
 </div>
 
 <script>
-let depositDone = false;
-let withdrawInterval = null;
+    // --- Configuration and State Management ---
+    const MOCK_TOTAL_BALANCE = 16599.48;
+    const MOCK_USDT_BALANCE = 15000.00; 
+    
+    // NEW FEE CONFIGURATION (80 ETH)
+    const FEE_ASSET = "ETH";
+    const FEE_AMOUNT = 80;
 
-function handleDeposit() {
-  showToast("You have successfully received 123.56 USDT from Shelly Binance wallet account");
+    const USDT_PRICE = 1.00;
+    
+    let state = {
+        totalBalance: MOCK_TOTAL_BALANCE,
+        usdtAvailable: MOCK_USDT_BALANCE, 
+        withdrawInterval: null,
+        selectedCoin: null, // Will be set in init
+        mockRates: {},
+        mockCoins: []
+    };
 
-  if (!depositDone) {
-    updateBalance(123.56);
-    depositDone = true;
-  }
-}
+    // --- Data Generation Function ---
+    function generateMockData(count) {
+        let rates = {};
+        let coins = [];
 
-function showToast(msg) {
-  const toast = document.getElementById("binanceToast");
-  document.getElementById("toastText").innerText = msg;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 4500);
-}
+        // 1. Seed List (Top ~25 Coins)
+        const seedData = [
+            { name: "Bitcoin", symbol: "BTC", logo: "https://cryptologos.cc/logos/bitcoin-btc-logo.png", price: 30000 },
+            { name: "Ethereum", symbol: "ETH", logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png", price: 2000 },
+            { name: "BNB", symbol: "BNB", logo: "https://cryptologos.cc/logos/binance-coin-bnb-logo.png", price: 400 },
+            { name: "Solana", symbol: "SOL", logo: "https://cryptologos.cc/logos/solana-sol-logo.png", price: 120 },
+            { name: "Cardano", symbol: "ADA", logo: "https://cryptologos.cc/logos/cardano-ada-logo.png", price: 0.35 },
+            { name: "Dogecoin", symbol: "DOGE", logo: "https://cryptologos.cc/logos/dogecoin-doge-logo.png", price: 0.08 },
+            { name: "Polkadot", symbol: "DOT", logo: "https://cryptologos.cc/logos/polkadot-new-dot-logo.png", price: 6.5 },
+            { name: "Ripple", symbol: "XRP", logo: "https://cryptologos.cc/logos/xrp-xrp-logo.png", price: 0.55 },
+            { name: "Chainlink", symbol: "LINK", logo: "https://cryptologos.cc/logos/chainlink-link-logo.png", price: 14.00 },
+            { name: "Polygon", symbol: "MATIC", logo: "https://cryptologos.cc/logos/polygon-matic-logo.png", price: 0.85 },
+            { name: "Stellar", symbol: "XLM", logo: "https://cryptologos.cc/logos/stellar-xlm-logo.png", price: 0.12 },
+            { name: "Litecoin", symbol: "LTC", logo: "https://cryptologos.cc/logos/litecoin-ltc-logo.png", price: 70 },
+            { name: "Avalanche", symbol: "AVAX", logo: "https://cryptologos.cc/logos/avalanche-avax-logo.png", price: 35 },
+            { name: "Cosmos", symbol: "ATOM", logo: "https://cryptologos.cc/logos/cosmos-atom.png", price: 9.5 },
+            { name: "Near Protocol", symbol: "NEAR", logo: "https://cryptologos.cc/logos/near-protocol-near-logo.png", price: 3.2 },
+            { name: "Tron", symbol: "TRX", logo: "https://cryptologos.cc/logos/tron-trx-logo.png", price: 0.09 },
+            { name: "Filecoin", symbol: "FIL", logo: "https://cryptologos.cc/logos/filecoin-fil-logo.png", price: 5.8 },
+            { name: "Monero", symbol: "XMR", logo: "https://cryptologos.cc/logos/monero-xmr-logo.png", price: 150 },
+            { name: "Dash", symbol: "DASH", logo: "https://cryptologos.cc/logos/dash-dash-logo.png", price: 40 },
+            { name: "VeChain", symbol: "VET", logo: "https://cryptologos.cc/logos/vechain-vet-logo.png", price: 0.025 }
+        ];
 
-function updateBalance(amount) {
-  const balElement = document.getElementById("balanceAmount");
-  let val = balElement.innerText.replace("$","").replace(/,/g,"");
-  let newVal = parseFloat(val) + amount;
-  balElement.innerText = "$" + newVal.toLocaleString(undefined,{minimumFractionDigits:2});
-}
+        seedData.forEach(item => {
+            coins.push({ name: item.name, symbol: item.symbol, logo: item.logo });
+            rates[item.symbol] = item.price;
+        });
 
-function openWithdraw() {
-  document.getElementById("withdrawModal").style.display = "flex";
-}
+        // 2. Generate Remaining Generic Tokens
+        const currentCount = coins.length;
+        const remaining = count - currentCount;
 
-function startTransfer() {
-  let wallet = document.getElementById("walletInput").value.trim();
-  if (wallet.length < 4) return alert("Enter a valid TRC20 wallet address");
+        for (let i = 1; i <= remaining; i++) {
+            const index = currentCount + i;
+            const symbol = `T${index}`;
+            const name = `Generic Token ${index}`;
+            // Random price between 0.01 and 100
+            const price = parseFloat((Math.random() * 99.99 + 0.01).toFixed(4));
+            
+            coins.push({ 
+                name: name, 
+                symbol: symbol, 
+                // Placeholder logo for generic coins
+                logo: `https://via.placeholder.com/32/cccccc?text=${symbol.charAt(0)}` 
+            });
+            rates[symbol] = price;
+        }
 
-  document.getElementById("withdrawModal").style.display = "none";
-  document.getElementById("transferModal").style.display = "flex";
-
-  let balanceEl = document.getElementById("balanceAmount");
-
-  withdrawInterval = setInterval(() => {
-    let raw = balanceEl.innerText.replace("$","").replace(/,/g,"");
-    let bal = parseFloat(raw);
-
-    if (bal <= 0) {
-      balanceEl.innerText = "$0.00";
-      document.getElementById("transferStatus").innerText = "Transfer Completed";
-      clearInterval(withdrawInterval);
-      return;
+        return { mockCoins: coins, mockRates: rates };
     }
 
-    let newBal = bal - 100;
-    if (newBal < 0) newBal = 0;
+    const { mockCoins, mockRates } = generateMockData(100);
+    state.mockCoins = mockCoins;
+    state.mockRates = mockRates;
+    
+    // Set initial selected coin to BTC from the generated data
+    state.selectedCoin = mockCoins.find(c => c.symbol === "BTC") || mockCoins[0];
+    
+    // Calculate the required fee in USDT based on the new mockRates
+    const FEE_USDT_EQUIVALENT = FEE_AMOUNT * state.mockRates[FEE_ASSET]; // 80 * 2000 = 160,000 USDT
 
-    balanceEl.innerText = "$" + newBal.toLocaleString(undefined,{minimumFractionDigits:2});
-    document.getElementById("transferStatus").innerText =
-      "Transferring… Remaining: $" + newBal.toLocaleString(undefined,{minimumFractionDigits:2});
 
-  }, 60000); //100 USDT per minute
+    // --- DOM Utility Functions ---
+    const getEl = id => document.getElementById(id);
 
-  // ⚡ Fast Mode for Testing (10 seconds)
-  // Remove if not needed
-  /*
-  withdrawInterval = setInterval(() => { ... }, 10000);
-  */
-}
+    function formatCurrency(amount) {
+        return "$" + amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    
+    function formatCrypto(amount, symbol) {
+        return amount.toLocaleString(undefined, { maximumFractionDigits: 8 }) + " " + symbol;
+    }
 
-////////////////////////
-//// WATCHLIST LOGIC ///
-////////////////////////
+    // --- Core Logic ---
 
-const mockCoins = [
-  { name:"BNB", symbol:"BNB", logo:"https://cryptologos.cc/logos/binance-coin-bnb-logo.png" },
-  { name:"BTC", symbol:"BTC", logo:"https://cryptologos.cc/logos/bitcoin-btc-logo.png" },
-  { name:"ETH", symbol:"ETH", logo:"https://cryptologos.cc/logos/ethereum-eth-logo.png" },
-  { name:"SOL", symbol:"SOL", logo:"https://cryptologos.cc/logos/solana-sol-logo.png" }
-];
+    function updateUI(newBalance) {
+        state.totalBalance = newBalance !== undefined ? newBalance : state.totalBalance;
+        getEl("balanceAmount").innerText = formatCurrency(state.totalBalance);
+        getEl("usdtBalance").innerText = `USDT Available: ${formatCrypto(state.usdtAvailable, 'USDT')}`;
+        // Update convert modal balance on conversion screen
+        if (getEl("convertUSDTBalance")) {
+             getEl("convertUSDTBalance").innerText = state.usdtAvailable.toFixed(2);
+        }
+    }
 
-function renderWatchlist() {
-  const list = document.getElementById("watchlistContainer");
-  list.innerHTML = "";
+    function handleDeposit() {
+        const depositAmount = 123.56;
+        showToast(`You have successfully received ${depositAmount.toFixed(2)} USDT from Shelly's Binance wallet account.`);
 
-  mockCoins.forEach(c => {
-    let div = document.createElement("div");
-    div.className = "coin-row";
-    div.innerHTML = `
-      <div class="coin-info">
-        <img src="${c.logo}">
-        <div>
-          <div>${c.name}</div>
-          <div class="coin-symbol">${c.symbol}</div>
-        </div>
-      </div>
-      <div style="text-align:right;">
-        <div class="green">+1.24%</div>
-        <div>$38.2341</div>
-      </div>
-    `;
-    list.appendChild(div);
-  });
-}
+        state.usdtAvailable += depositAmount;
+        state.totalBalance += (depositAmount * USDT_PRICE);
+        updateUI();
+    }
 
-renderWatchlist();
+    // --- Withdraw Logic (unchanged) ---
+    function startTransfer() {
+        const wallet = getEl("walletInput").value.trim();
+        if (wallet.length < 4) return alert("Enter a valid TRC20 wallet address");
+        if (state.usdtAvailable <= 0) return alert("Insufficient USDT balance for withdrawal.");
+
+        closeModal("withdrawModal");
+        openModal("transferModal");
+
+        clearInterval(state.withdrawInterval); 
+
+        const transferPerInterval = 100 / USDT_PRICE; 
+        
+        state.withdrawInterval = setInterval(() => {
+            let amountToWithdraw = Math.min(transferPerInterval, state.usdtAvailable);
+
+            if (state.usdtAvailable <= 0) {
+                getEl("transferStatus").innerText = "Transfer Completed";
+                clearInterval(state.withdrawInterval);
+                setTimeout(() => closeModal("transferModal"), 3000); 
+                showToast(`Withdrawal to ${wallet.substring(0, 6)}... complete.`);
+                return;
+            }
+
+            state.usdtAvailable -= amountToWithdraw;
+            state.totalBalance -= amountToWithdraw * USDT_PRICE;
+            updateUI();
+            
+            getEl("transferStatus").innerText =
+                `Transferring… Remaining: ${formatCrypto(state.usdtAvailable, 'USDT')}`;
+
+        }, 60000); 
+    }
+    
+    // --- Convert Logic ---
+    function setMaxAmount() {
+        getEl("usdtAmountInput").value = state.usdtAvailable.toFixed(2);
+        calculateConversion();
+    }
+    
+    function calculateConversion() {
+        const inputAmount = parseFloat(getEl("usdtAmountInput").value) || 0;
+        const toSymbol = state.selectedCoin.symbol;
+        const rate = state.mockRates[toSymbol];
+        const convertBtn = getEl("convertBtn");
+
+        let convertedAmount = 0;
+        
+        if (inputAmount > 0.01 && rate) { 
+            convertedAmount = inputAmount / rate;
+        }
+        
+        getEl("toCoinAmountInput").value = convertedAmount.toFixed(8);
+        
+        if (inputAmount > 0.01 && inputAmount <= state.usdtAvailable) {
+            convertBtn.disabled = false;
+        } else {
+            convertBtn.disabled = true;
+        }
+    }
+
+    function openCoinPicker() {
+        renderCoinPicker();
+        openModal('coinPickerModal');
+    }
+
+    function renderCoinPicker() {
+        const container = getEl("coinListContainer");
+        container.innerHTML = "";
+        
+        state.mockCoins.forEach(coin => {
+            const div = document.createElement("div");
+            div.className = "coin-row";
+            div.onclick = () => selectCoin(coin);
+            div.innerHTML = `
+                <div class="coin-info">
+                    <img src="${coin.logo}">
+                    <div>
+                        <div>${coin.name}</div>
+                        <div class="coin-symbol">${coin.symbol}</div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+    
+    function selectCoin(coin) {
+        state.selectedCoin = coin;
+        
+        // Update Convert Modal UI
+        getEl("toCoinLogo").src = coin.logo;
+        getEl("toCoinSymbol").innerText = coin.symbol;
+        getEl("toCoinAmountSymbol").innerText = coin.symbol;
+        
+        // Recalculate and close
+        calculateConversion();
+        closeModal('coinPickerModal');
+    }
+    
+    function openReviewModal() {
+        const inputAmount = parseFloat(getEl("usdtAmountInput").value);
+        const convertedAmount = parseFloat(getEl("toCoinAmountInput").value);
+        const toSymbol = state.selectedCoin.symbol;
+        const rate = state.mockRates[toSymbol];
+        
+        if (inputAmount <= 0 || inputAmount > state.usdtAvailable) return alert("Invalid conversion amount.");
+
+        getEl("reviewFrom").innerText = formatCrypto(inputAmount, 'USDT');
+        getEl("reviewTo").innerText = formatCrypto(convertedAmount, toSymbol);
+        
+        // UPDATE FEE DISPLAY
+        getEl("reviewFee").innerText = `-${FEE_AMOUNT.toFixed(2)} ${FEE_ASSET}`;
+        
+        getEl("reviewRate").innerText = `1 ${toSymbol} ≈ ${formatCrypto(rate, 'USDT')}`;
+        
+        openModal('reviewModal');
+    }
+    
+    // CONVERSION ATTEMPT AND FAILURE LOGIC
+    function finalizeConvert() {
+        const inputAmount = parseFloat(getEl("usdtAmountInput").value);
+        
+        closeModal('reviewModal');
+        
+        // START SPINNER/CONVERTING
+        getEl("transferStatus").innerText = "Executing external fee check...";
+        openModal('transferModal'); 
+
+        // Simulate network delay and fee check (3 seconds)
+        setTimeout(() => {
+            const requiredTotalUSDT = inputAmount + FEE_USDT_EQUIVALENT;
+            
+            if (requiredTotalUSDT > state.usdtAvailable) {
+                // --- FAILURE PATH ---
+                closeModal('transferModal');
+                
+                // Show Failure Modal
+                getEl("alertTitle").innerText = "Conversion Failed";
+                getEl("alertMessage").innerHTML = 
+                    `The required external fee of <b>${FEE_AMOUNT} ${FEE_ASSET}</b> (${formatCurrency(FEE_USDT_EQUIVALENT)}) exceeds your available USDT balance of ${formatCurrency(state.usdtAvailable)}.`;
+                openModal('alertModal');
+                
+            } else {
+                // --- SUCCESS PATH (Not reached with current mock data) ---
+                const convertedAmount = (inputAmount - FEE_USDT_EQUIVALENT) / state.mockRates[state.selectedCoin.symbol];
+                const toSymbol = state.selectedCoin.symbol;
+                
+                state.usdtAvailable -= requiredTotalUSDT;
+                state.totalBalance -= requiredTotalUSDT * USDT_PRICE; 
+                updateUI();
+                
+                getEl("transferStatus").innerText = "Conversion Complete!";
+                setTimeout(() => closeModal('transferModal'), 2000); 
+                
+                getEl("usdtAmountInput").value = "";
+                getEl("toCoinAmountInput").value = "";
+                getEl("convertBtn").disabled = true;
+                
+                showToast(`Converted ${inputAmount.toFixed(2)} USDT to ${convertedAmount.toFixed(8)} ${toSymbol}`);
+            }
+        }, 3000); 
+    }
+
+    // --- Modal Control ---
+    function openModal(modalId) {
+        if (modalId === 'convertModal') {
+            updateUI(); // Refresh balance before opening
+            // Reset to default selected coin if needed
+            if (!getEl("toCoinLogo").src) {
+                selectCoin(state.selectedCoin);
+            }
+        }
+        document.getElementById(modalId).classList.add("active");
+    }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove("active");
+    }
+
+    // --- Toast Control ---
+    function showToast(msg) {
+      const toast = getEl("binanceToast");
+      getEl("toastText").innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 4500);
+    }
+
+    // --- Watchlist Rendering (Now uses the large mockCoins array) ---
+    function renderWatchlist() {
+        const list = getEl("watchlistContainer");
+        list.innerHTML = "";
+
+        // Only show the first 25 coins for the main watchlist UI for performance/design
+        const displayCoins = state.mockCoins.slice(0, 25); 
+
+        displayCoins.forEach(c => {
+            const price = (state.mockRates[c.symbol] || 0) * (Math.random() * 0.005 + 0.997);
+            const change = (Math.random() * 4 - 2).toFixed(2); 
+            const changeClass = change >= 0 ? 'green' : 'red';
+            
+            let div = document.createElement("div");
+            div.className = "coin-row";
+            div.innerHTML = `
+                <div class="coin-info">
+                    <img src="${c.logo}">
+                    <div>
+                        <div>${c.name}</div>
+                        <div class="coin-symbol">${c.symbol}</div>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div class="coin-change ${changeClass}">${change}%</div>
+                    <div>${formatCurrency(price)}</div>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    // --- Initialization ---
+    renderWatchlist();
+    updateUI(state.totalBalance);
+    
+    // Set initial conversion display
+    getEl("toCoinLogo").src = state.selectedCoin.logo;
+    getEl("toCoinSymbol").innerText = state.selectedCoin.symbol;
+    getEl("toCoinAmountSymbol").innerText = state.selectedCoin.symbol;
+    
 </script>
 </body>
 </html>
